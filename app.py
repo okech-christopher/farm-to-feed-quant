@@ -11,8 +11,8 @@ from pathlib import Path
 import os
 
 app = FastAPI(
-    title="Farm to Feed Elite Scorer",
-    description="Live Demand Forecasting for Rank 1 Zindi Architecture (V11 Voting)",
+    title="Agri-Demand Optimizer",
+    description="Systematic Demand Forecasting for Kenyan Agricultural Supply Chains",
     version="1.1.0"
 )
 
@@ -115,12 +115,14 @@ def predict_demand(scenario: Scenario):
         qty_1w_final = min(qty_1w_voted, scenario.pair_max_qty * 1.3)
         qty_2w_final = min(max(qty_2w_voted, qty_1w_final), scenario.pair_max_qty * 1.3)
 
-        # 4. Architect Insights
-        risk = "Elite" if buy_1w > 0.7 else "Mid-Tier" if buy_1w > 0.4 else "Low-Confidence"
-        growth = "Positive" if results['qty_delta_2w'] > 0 else "Stable/Declining"
-        
-        insight = f"Strategic Anchor: {scenario.unit_name} shows a {risk} demand regime. "
-        insight += f"The temporal delta is {growth}, indicating a {'growth' if growth=='Positive' else 'contraction'} period for this SKU."
+        # Qualitative System Analysis
+        regime = "High-Confidence" if buy_1w > 0.7 else "Standard" if buy_1w > 0.4 else "Low-Confidence"
+        if buy_1w > 0.7 and results['qty_delta_2w'] > 0:
+            insight = f"System Analytics: Projecting a high-momentum regime. Current temporal scaling suggests a growth period for this SKU."
+        elif buy_1w > 0.4:
+            insight = f"System Analytics: Stable demand profile detected. Standard replenishment volume is recommended."
+        else:
+            insight = f"System Analytics: Low-confidence demand signal. Output has been automatically adjusted to prioritize inventory security."
 
         return {
             "status": "success",
@@ -136,7 +138,7 @@ def predict_demand(scenario: Scenario):
             },
             "metrics": {
                 "delta": round(results['qty_delta_2w'], 2),
-                "confidence_regime": risk
+                "confidence_regime": regime
             },
             "architect_insight": insight
         }
